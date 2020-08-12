@@ -1,0 +1,5 @@
+# Ignore executable files for the client and server
+client.exe
+server.exe
+client
+server
