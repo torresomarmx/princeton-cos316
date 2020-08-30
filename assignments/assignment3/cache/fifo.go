@@ -68,11 +68,19 @@ func (fifo *FIFO) Set(key string, value []byte) bool {
 	if fifo.Limit < sizeOfInsert {
 		return false
 	}
+
+	existingElement, ok := fifo.ElementsMap[key]
+	if ok {
+		fifo.OrderedElements.Remove(existingElement)
+		fifo.CurrentStorage -= len(existingElement.Value.(ListElement).Key) + len(existingElement.Value.(ListElement).Value)
+		delete(fifo.ElementsMap, key)
+	}
+
 	// pop elements one at time until we have enough storage
 	for (fifo.RemainingStorage() - sizeOfInsert) < 0 {
 		frontElement := fifo.OrderedElements.Front()
 		fifo.OrderedElements.Remove(frontElement)
-		fifo.CurrentStorage -= len(frontElement.Value.(ListElement).Key) - len(frontElement.Value.(ListElement).Value)
+		fifo.CurrentStorage -= len(frontElement.Value.(ListElement).Key) + len(frontElement.Value.(ListElement).Value)
 		delete(fifo.ElementsMap, frontElement.Value.(ListElement).Key)
 	}
 
